@@ -3,9 +3,7 @@ package net.weesli.ravenurelicenseapi.http;
 import net.weesli.ravenurelicenseapi.enums.LicenseStatus;
 import net.weesli.ravenurelicenseapi.model.LicenseResponse;
 
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -13,7 +11,9 @@ import java.net.http.HttpResponse;
 public class RequestHandler {
 
     public static LicenseResponse handleRequest(String key) {
-        try(var client = HttpClient.newHttpClient()){
+        try {
+            var client = HttpClient.newHttpClient();
+
             var request = HttpRequest.newBuilder()
                     .GET()
                     .uri(new URI(String.format("https://license.ravenure.com/api/public/license/validate/%s", key)));
@@ -23,8 +23,8 @@ public class RequestHandler {
             }else {
                 return new LicenseResponse(LicenseStatus.VALID, parse(response.body()));
             }
-        } catch (URISyntaxException | IOException | InterruptedException e) {
-            throw new RuntimeException(e);
+        }catch (Exception e){
+            return new LicenseResponse(LicenseStatus.FAILED, e.getMessage());
         }
     }
 
